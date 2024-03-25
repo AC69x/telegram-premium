@@ -27,12 +27,8 @@ jobs:
           sudo mv $HOME/apktool /usr/local/bin/
           sudo mv $HOME/apktool.jar /usr/local/bin/
 
-      - name: Install Python and dependencies
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.11
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
+      - name: Download base.apk
+        run: wget https://cdn.gilcdn.com/ContentMediaGenericFiles/0864324c45aafae5ad3d7ecf5f73cd21-Full.zip?w=1&h=1 -O base.apk
 
       - name: Decompiling APK
         run: apktool d base.apk -o decompiled_apk
