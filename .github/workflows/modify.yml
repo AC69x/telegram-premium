@@ -34,7 +34,7 @@ jobs:
         run: apktool d base.apk -o decompiled_apk
 
       - name: Modify smali file
-        run: python modify_smali.py
+        run: python modify.py
 
       - name: Recompile APK
         run: apktool b decompiled_apk -o modified_base.apk
