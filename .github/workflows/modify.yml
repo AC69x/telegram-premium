@@ -1,0 +1,54 @@
+name: Modify APK and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  modify_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Install apktool
+        run: |
+          wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O $HOME/apktool
+          wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.5.0.jar -O $HOME/apktool.jar
+          chmod +x $HOME/apktool
+          sudo mv $HOME/apktool /usr/local/bin/
+          sudo mv $HOME/apktool.jar /usr/local/bin/
+
+      - name: Install Python and dependencies
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Decompiling APK
+        run: apktool d base.apk -o decompiled_apk
+
+      - name: Modify smali file
+        run: python modify_smali.py
+
+      - name: Recompile APK
+        run: apktool b decompiled_apk -o modified_base.apk
+
+      # Additional steps for signing the APK if required
+
+      - name: Upload to releases
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./modified_base.apk
+          asset_name: modified_base.apk
+          asset_content_type: application/vnd.android.package-archive
